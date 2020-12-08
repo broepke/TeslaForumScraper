@@ -8,8 +8,7 @@ output:
 ---
 
 # Background
-
-Techniques in this notebook were built off of the learnings from the Data Camp course on Web Scraping with R.  This includes throughout the work the guidance to "Be Kind" with the web servers. Therefore it includes multiple delays before each scraping call to pages using the `slowly` function from `purrr`.  
+Techniques in this notebook were built off of the learnings from the Data Camp course on Web Scraping with R.  This takes into recommendation from DataCamp the guidance to "Be Kind" to web servers, therefore it includes delays before each scraping call to pages using the `slowly` function from `purrr`.   
 
 https://learn.datacamp.com/courses/web-scraping-in-r
 
@@ -126,7 +125,7 @@ get_all_discussions <- function(url){
   # Construct the URLs to query
   page_urls <- c(paste0(url,"p", 1:num_pages))
   
-  # Define a throttled read_html() function with a delay of 0.5s
+  # Define a throttled read_html() function with a delay of N seconds.
   read_html_delayed <- slowly(read_html, rate = rate_delay(0.1))
   
   discussion_threads <- tibble()
@@ -148,10 +147,10 @@ get_all_discussions <- function(url){
 **Note:** The depth is controlled by the number in the paste0 function. Currently set up to give 3 URLs / Pages.
 
 ```{r}
-page_urls <- c(paste0("https://forums.tesla.com/categories/tesla-model-3/p", 1:50))
+page_urls <- c(paste0("https://forums.tesla.com/categories/tesla-model-3/p", 1:3))
 
 
-# Define a throttled read_html() function with a delay of 0.5s
+# Define a throttled read_html() function with a delay of N seconds.
 read_html_delayed <- slowly(read_html, rate = rate_delay(0.1))
 
 #initialize a blank tibble for the incoming data (for rbind)
@@ -172,14 +171,10 @@ topics_data <- tibble()
 for (topic in model3_topics$URLs){
   topic_data <- get_all_discussions(topic)
   topics_data <- rbind(topics_data, topic_data)
+  # write the file after each loop.  You can see the progress
+  # and if something fails you don't have to start over necessarily.
   write_csv(topics_data, "tesla_discussions.csv")
 }
 
-```
-
-## Write it to a CSV
-
-```{r}
-write_csv(topics_data, "tesla_discussions.csv")
 ```
 
