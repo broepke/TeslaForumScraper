@@ -20,14 +20,13 @@ library(purrr)
 library(robotstxt)
 ```
 
-# Checking to See if Scraping is Acceptable
+**Note:** Check to See if Scraping is Acceptable
 
 ```{r}
 paths_allowed(
     path = "/categories/tesla-model-3/",
     domain = "https://forums.tesla.com/")
 ```
-
 
 # Tesla Model 3
 
