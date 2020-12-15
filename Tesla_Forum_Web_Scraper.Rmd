@@ -92,8 +92,8 @@ get_discussion_page_content <- function(html, title){
     html_text(trim = TRUE)
   
   time <- html %>%
-    html_nodes("time") %>%
-    html_text(trim = TRUE)
+    html_nodes('a.Permalink > time') %>% 
+    html_attr('datetime')
   
   # Extract the user names from each post
   user <- html %>%
@@ -135,7 +135,10 @@ get_all_discussions <- function(url){
 
   for (page_url in page_urls){
     html <- read_html_delayed(page_url)
-    page_data <- get_discussion_page_content(html, discussion_title)
+    try(
+      page_data <- get_discussion_page_content(html, discussion_title),
+      silent = TRUE
+      )
     discussion_threads <- rbind(discussion_threads, page_data)
   }
   
@@ -149,8 +152,15 @@ get_all_discussions <- function(url){
 ## Start by getting a list of all the page URLs.  
 **Note:** The depth is controlled by the number in the paste0 function. Currently set up to give 3 URLs / Pages.
 
+
 ```{r}
-page_urls <- c(paste0("https://forums.tesla.com/categories/tesla-model-3/p", 1:1))
+start <- 151
+finish <- 175
+```
+
+
+```{r}
+page_urls <- c(paste0("https://forums.tesla.com/categories/tesla-model-3/p", start:finish))
 
 
 # Define a throttled read_html() function with a delay of N seconds.
@@ -171,12 +181,17 @@ for (page_url in page_urls){
 ```{r}
 topics_data <- tibble()
 
+# Create a filename based on the start and finish numbers.
+file_name <- paste("tesla_discussions_", start,"-", finish, ".csv", sep = "")
+
 for (topic in model3_topics$URLs){
   topic_data <- get_all_discussions(topic)
   topics_data <- rbind(topics_data, topic_data)
   # write the file after each loop.  You can see the progress
   # and if something fails you don't have to start over necessarily.
-  write_csv(topics_data, "tesla_discussions.csv")
+  write_csv(topics_data, file_name)
 }
 ```
+
+
 
